@@ -18,3 +18,4 @@ A short demo video is available on YouTube: https://youtu.be/UHtOWrxFmwo
 4. Put your Terra Pack (unzipped) in the `dev` folder that is generated in the same folder as the jar file;
 5. Join the server at address `localhost` in Minecraft;
 6. Configuration of the server is done in the `config.json` file (a reboot of the server is required).
+7. Use your favourite IDE to open the `dev` folder. You can now edit your pack files and see the changes in-game.
