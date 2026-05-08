@@ -1,11 +1,8 @@
 package com.sybsuper.terradevserver
 
-import com.sybsuper.TerraDevServer.BuildConfig
 import net.minestom.server.MinecraftServer
 import net.minestom.server.coordinate.Pos
-import net.minestom.server.entity.EntityStatuses
 import net.minestom.server.entity.GameMode
-import net.minestom.server.entity.Player
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent
 import net.minestom.server.event.player.PlayerChatEvent
 import net.minestom.server.event.player.PlayerSpawnEvent
@@ -13,12 +10,7 @@ import net.minestom.server.instance.Instance
 import net.minestom.server.timer.TaskSchedule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.concurrent.Semaphore
-import kotlin.io.path.Path
-import kotlin.io.path.absolute
-import kotlin.io.path.createDirectory
-import kotlin.io.path.isDirectory
-import kotlin.io.path.relativeTo
+import kotlin.io.path.*
 
 val logger: Logger = LoggerFactory.getLogger("TerraDevServer")!!
 
@@ -26,8 +18,8 @@ fun main() {
     System.setProperty("minestom.registry.unsafe-ops", "true")
     val version = "TerraDevServer ${BuildConfig.VERSION}"
     logger.info("Starting server $version...")
-    MinecraftServer.setBrandName(version)
     val minecraftServer = MinecraftServer.init()
+    MinecraftServer.setBrandName(version)
 
     if (!Path(config.devPackFolder).isDirectory()) {
         logger.info("Creating dev pack directory at ${config.devPackFolder}")
@@ -51,7 +43,8 @@ fun main() {
     if (config.syncPlayerPositions) enableSyncPositions()
     if (config.watchDevPackDirectory) watchFolder(Path(config.devPackFolder)) {
         logger.info("Detected file change at ${it.path()}")
-        val msg = "Detected file change at ${it.path().relativeTo(Path(config.devPackFolder).absolute())} reloading dev pack"
+        val msg =
+            "Detected file change at ${it.path().relativeTo(Path(config.devPackFolder).absolute())} reloading dev pack"
         val player = getPlayerTarget()
         logger.info(msg)
         player.sendMessage(msg)

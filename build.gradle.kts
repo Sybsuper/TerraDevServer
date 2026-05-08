@@ -44,19 +44,12 @@ application {
 }
 
 buildConfig {
+    packageName("com.sybsuper.terradevserver")
     buildConfigField("VERSION", version.toString())
 }
 
 tasks {
     test {
         useJUnitPlatform()
-    }
-
-    shadowJar {
-        minimize {
-            exclude(dependency("net.minestom:.*:.*"))
-            exclude(dependency("net.kyori:.*:.*"))
-            exclude(dependency("org.slf4j:.*:.*"))
-        }
     }
 }
