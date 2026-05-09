@@ -32,6 +32,8 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.78.0")
     implementation("org.slf4j:slf4j-simple:2.0.17")
     implementation("io.methvin:directory-watcher:0.19.1")
+    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.16")
+    implementation("io.github.revxrsal:lamp.minestom:4.0.0-rc.16")
     testImplementation(kotlin("test"))
 }
 

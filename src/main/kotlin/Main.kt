@@ -1,5 +1,6 @@
 package com.sybsuper.terradevserver
 
+import com.sybsuper.terradevserver.commands.CommandManager
 import com.sybsuper.terradevserver.modules.ModuleManager
 import net.minestom.server.MinecraftServer
 import net.minestom.server.coordinate.Pos
@@ -29,6 +30,7 @@ fun main() {
     initializeListeners()
 
     ModuleManager.loadModules()
+    CommandManager.registerCommands()
 
     runCatching {
         minecraftServer.start(config.bindAddress, config.port)

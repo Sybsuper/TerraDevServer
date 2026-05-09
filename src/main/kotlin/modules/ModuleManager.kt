@@ -9,7 +9,6 @@ object ModuleManager {
         PlayerCycleTarget,
         RemoveDeadInstances,
         Motd,
-        ReloadCommand,
     )
 
     fun loadModules() {

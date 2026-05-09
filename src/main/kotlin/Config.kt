@@ -2,6 +2,7 @@ package com.sybsuper.terradevserver
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlComment
+import com.sybsuper.terradevserver.commands.CommandManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -32,10 +33,10 @@ data class Config(
     val watchDevPackDirectory: Boolean = true,
     @YamlComment("Set an motd (server list name)")
     val motd: String = "Terra Dev Server\nMade by: Sybsuper",
-    @YamlComment("Whether to enable the /reload command")
-    val reloadCommandEnabled: Boolean = true,
     @YamlComment("Set a world seed")
     val worldSeed: Long = 0L,
+    @YamlComment("Select which commands to enable")
+    val enabledCommands: List<String> = CommandManager.commands.map { it.name }
 ) {
 }
 
