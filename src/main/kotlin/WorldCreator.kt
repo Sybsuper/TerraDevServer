@@ -17,7 +17,7 @@ import kotlin.io.path.Path
 import kotlin.jvm.optionals.getOrNull
 
 private val zipLock = ReentrantLock()
-private val platform = TerraMinestomPlatform()
+val platform = TerraMinestomPlatform()
 
 /**
  * Compiles a new version of the dev pack and creates a new instance container using that pack as its generator.

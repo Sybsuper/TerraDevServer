@@ -48,6 +48,7 @@ private fun initializeListeners() {
     globalEventHandler.addListener(AsyncPlayerConfigurationEvent::class.java) { event ->
         event.spawningInstance = createInstance()
         event.player.respawnPoint = Pos(0.0, 64.0, 0.0)
+        event.player.permissionLevel = 4
     }
     globalEventHandler.addListener(PlayerSpawnEvent::class.java) { event ->
         event.player.gameMode = GameMode.SPECTATOR

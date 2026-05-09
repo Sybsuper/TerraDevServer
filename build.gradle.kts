@@ -13,17 +13,9 @@ version = project.findProperty("version")?.toString() ?: "unknown"
 repositories {
     mavenCentral()
 
-    maven {
-        url = uri("https://mvn.everbuild.org/public")
-    }
-
-    maven {
-        url = uri("https://repo.codemc.io/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://maven.solo-studios.ca/releases/")
-    }
+    maven("https://mvn.everbuild.org/public")
+    maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://maven.solo-studios.ca/releases/")
 }
 
 dependencies {

@@ -1,12 +1,19 @@
 package com.sybsuper.terradevserver.commands
 
+import com.dfsek.terra.api.world.biome.Biome
 import com.sybsuper.terradevserver.config
 import revxrsal.commands.minestom.MinestomLamp
 
 object CommandManager {
-    private val lamp = MinestomLamp.builder().build()
-    val commands = mutableListOf<ICommand>(
-        Reload()
+    private val lamp = MinestomLamp.builder()
+        .parameterTypes {
+            it.addParameterType(Biome::class.java, BiomeParameterType())
+        }
+        .build()
+    val commands = mutableListOf(
+        Reload(),
+        Locate(),
+        Teleport(),
     )
 
     fun registerCommands() {
