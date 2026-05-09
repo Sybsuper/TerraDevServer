@@ -1,18 +1,18 @@
 package com.sybsuper.terradevserver
 
+import com.sybsuper.terradevserver.modules.ModuleManager
 import net.minestom.server.MinecraftServer
 import net.minestom.server.coordinate.Pos
 import net.minestom.server.entity.GameMode
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent
-import net.minestom.server.event.player.PlayerChatEvent
 import net.minestom.server.event.player.PlayerSpawnEvent
-import net.minestom.server.instance.Instance
-import net.minestom.server.timer.TaskSchedule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectory
+import kotlin.io.path.isDirectory
 
-val logger: Logger = LoggerFactory.getLogger("TerraDevServer")!!
+val logger: Logger = PlayerLogger(LoggerFactory.getLogger("TerraDevServer")!!)
 
 fun main() {
     System.setProperty("minestom.registry.unsafe-ops", "true")
@@ -26,32 +26,9 @@ fun main() {
         Path(config.devPackFolder).createDirectory()
     }
 
-    val globalEventHandler = MinecraftServer.getGlobalEventHandler()
-    globalEventHandler.addListener(AsyncPlayerConfigurationEvent::class.java) { event ->
-        event.spawningInstance = createInstance()
-        event.player.respawnPoint = Pos(0.0, 64.0, 0.0)
-    }
-    globalEventHandler.addListener(PlayerSpawnEvent::class.java) { event ->
-        event.player.gameMode = GameMode.SPECTATOR
-    }
-    globalEventHandler.addListener(PlayerChatEvent::class.java) { event ->
-        if (event.rawMessage != "reload") return@addListener
-        event.isCancelled = true
-        updateDevPackForPlayer(event.player)
-    }
+    initializeListeners()
 
-    if (config.syncPlayerPositions) enableSyncPositions()
-    if (config.watchDevPackDirectory) watchFolder(Path(config.devPackFolder)) {
-        logger.info("Detected file change at ${it.path()}")
-        val msg =
-            "Detected file change at ${it.path().relativeTo(Path(config.devPackFolder).absolute())} reloading dev pack"
-        val player = getPlayerTarget()
-        logger.info(msg)
-        player.sendMessage(msg)
-        updateDevPackForPlayer(player)
-    }
-
-    removeDeadInstances()
+    ModuleManager.loadModules()
 
     runCatching {
         minecraftServer.start(config.bindAddress, config.port)
@@ -64,14 +41,13 @@ fun main() {
     logger.info("Server started at ${config.bindAddress}:${config.port}")
 }
 
-private fun removeDeadInstances() {
-    val seenEmpty = mutableMapOf<Instance, Int>()
-    MinecraftServer.getSchedulerManager().scheduleTask({
-        MinecraftServer.getInstanceManager().instances.filter { it.players.isEmpty() }.forEach {
-            seenEmpty[it] = (seenEmpty[it] ?: 0) + 1
-            if (seenEmpty[it]!! < 30) return@forEach
-            MinecraftServer.getInstanceManager().unregisterInstance(it)
-            seenEmpty.remove(it)
-        }
-    }, TaskSchedule.seconds(1), TaskSchedule.seconds(1))
+private fun initializeListeners() {
+    val globalEventHandler = MinecraftServer.getGlobalEventHandler()
+    globalEventHandler.addListener(AsyncPlayerConfigurationEvent::class.java) { event ->
+        event.spawningInstance = createInstance()
+        event.player.respawnPoint = Pos(0.0, 64.0, 0.0)
+    }
+    globalEventHandler.addListener(PlayerSpawnEvent::class.java) { event ->
+        event.player.gameMode = GameMode.SPECTATOR
+    }
 }

@@ -6,10 +6,10 @@ import java.util.concurrent.Semaphore
 
 
 val lock = Semaphore(1)
-fun updateDevPackForPlayer(player: Player) {
+fun updateDevPackForPlayer(player: Player, force: Boolean = false) {
     val startTime = System.currentTimeMillis()
     logger.info("Reload triggered for ${player.username}")
-    if (!lock.tryAcquire()) {
+    if (!force && !lock.tryAcquire()) {
         player.sendMessage("Already reloading")
         return
     }
@@ -18,9 +18,9 @@ fun updateDevPackForPlayer(player: Player) {
     player.setInstance(createInstance()).thenRun {
         val stopTime = System.currentTimeMillis()
         val durationMs = stopTime - startTime
-        logger.info("Reload finished in ${durationMs/1000.0} seconds")
+        logger.info("Reload finished in ${durationMs / 1000.0} seconds")
         MinecraftServer.getInstanceManager().unregisterInstance(oldInstance)
         player.sendMessage("Reloaded in ${durationMs / 1000.0} seconds")
-        lock.release()
+        if (!force) lock.release()
     }
 }

@@ -30,7 +30,14 @@ data class Config(
         "this will automatically reload the dev pack when a file change is detected"
     )
     val watchDevPackDirectory: Boolean = true,
-)
+    @YamlComment("Set an motd (server list name)")
+    val motd: String = "Terra Dev Server\nMade by: Sybsuper",
+    @YamlComment("Whether to enable the /reload command")
+    val reloadCommandEnabled: Boolean = true,
+    @YamlComment("Set a world seed")
+    val worldSeed: Long = 0L,
+) {
+}
 
 private val configFile = File("config.yml")
 val config =
