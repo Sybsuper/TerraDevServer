@@ -35,7 +35,12 @@ fun createInstance(player: Player? = null): InstanceContainer {
     }
     // todo: is this synchronized really necessary? probably not, but we should test it
     synchronized(platform) {
-        customDevPackReload()
+        try {
+            customDevPackReload()
+        } catch (e: Exception) {
+            logger.error("Loading dev pack failed sending player to empty world.", e)
+            return instanceContainer
+        }
         val pack = platform.configRegistry.get(lastRegistryKey).getOrNull()
         if (pack == null) {
             logger.error("Dev pack not found, check the server console for errors while loading the pack.")
@@ -78,12 +83,8 @@ private fun incrementRegistryKey(key: RegistryKey): RegistryKey {
  * Such that the player can still explore those worlds and generate new chunks to be compared to the newer versions.
  */
 private fun customDevPackReload() {
-    try {
-        val pack: ConfigPack = ConfigPackImpl(Path(config.devPackFolder), platform)
-        platform.configRegistry.register(incrementRegistryKey(lastRegistryKey), pack)
-    } catch (e: Exception) {
-        logger.error("Failed to reload dev pack", e)
-    }
+    val pack: ConfigPack = ConfigPackImpl(Path(config.devPackFolder), platform)
+    platform.configRegistry.register(incrementRegistryKey(lastRegistryKey), pack)
 }
 
 /**
