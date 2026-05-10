@@ -9,6 +9,7 @@ object ModuleManager {
         PlayerCycleTarget,
         RemoveDeadInstances,
         Motd,
+        BiomeRegistryFix,
     )
 
     fun loadModules() {

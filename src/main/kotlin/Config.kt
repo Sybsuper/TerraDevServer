@@ -36,7 +36,14 @@ data class Config(
     @YamlComment("Set a world seed")
     val worldSeed: Long = 0L,
     @YamlComment("Select which commands to enable")
-    val enabledCommands: List<String> = CommandManager.commands.map { it.name }
+    val enabledCommands: List<String> = CommandManager.commands.map { it.name },
+    @YamlComment(
+        "When enabled, players will be automatically reconnected",
+        "when a new biome is introduced after a pack reload.",
+        "When disabled, clients will disconnect when a new biome is introduced.",
+        "This is because the biome registry is not updated until the client reconnects."
+    )
+    val fixBiomeDisconnects: Boolean = true,
 ) {
 }
 

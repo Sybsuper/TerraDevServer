@@ -4,7 +4,9 @@ import com.dfsek.terra.api.config.ConfigPack
 import com.dfsek.terra.api.registry.key.RegistryKey
 import com.dfsek.terra.config.pack.ConfigPackImpl
 import com.dfsek.terra.minestom.TerraMinestomPlatform
+import com.sybsuper.terradevserver.events.PackPostLoadEvent
 import net.minestom.server.MinecraftServer
+import net.minestom.server.entity.Player
 import net.minestom.server.instance.InstanceContainer
 import net.minestom.server.instance.LightingChunk
 import java.nio.file.Files
@@ -22,14 +24,16 @@ val platform = TerraMinestomPlatform()
 /**
  * Compiles a new version of the dev pack and creates a new instance container using that pack as its generator.
  *
+ * @param player For whom to create the instance. Player is not affected.
  * @return The created instance container.
  */
-fun createInstance(): InstanceContainer {
+fun createInstance(player: Player? = null): InstanceContainer {
     val instanceContainer = MinecraftServer.getInstanceManager().createInstanceContainer()
     instanceContainer.setChunkSupplier(::LightingChunk)
     zipLock.withLock {
         createDevPack()
     }
+    // todo: is this synchronized really necessary? probably not, but we should test it
     synchronized(platform) {
         customDevPackReload()
         val pack = platform.configRegistry.get(lastRegistryKey).getOrNull()
@@ -42,6 +46,8 @@ fun createInstance(): InstanceContainer {
             .pack(pack)
             .seed(config.worldSeed)
             .attach()
+        instanceContainer.loadChunk(0, 0)
+        MinecraftServer.getGlobalEventHandler().call(PackPostLoadEvent(pack, instanceContainer, player))
     }
     instanceContainer.viewDistance(10)
     instanceContainer.timeRate = 0
