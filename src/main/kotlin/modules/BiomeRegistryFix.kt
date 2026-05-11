@@ -48,17 +48,14 @@ object BiomeRegistryFix : IModule {
             var sending = false
             var listener: EventListener<PlayerPacketOutEvent>? = null
             listener = EventListener.of(PlayerPacketOutEvent::class.java) { ev ->
-                if (ev.packet is FinishConfigurationPacket) {
-                    if (!sending) {
-                        sending = true
-                        player.scheduler().scheduleEndOfTick {
-                            logger.info("Sending player to new instance")
-                            waitPlayers.remove(e.player.uuid)
-                            player.eventNode().removeListener(listener)
-                            player.setInstance(e.instance, playerPos)
-                            TaskSchedule.stop()
-                        }
-                    }
+                if (ev.packet !is FinishConfigurationPacket || sending) return@of
+                sending = true
+                player.scheduler().scheduleEndOfTick {
+                    logger.info("Sending player to new instance")
+                    waitPlayers.remove(e.player.uuid)
+                    player.eventNode().removeListener(listener)
+                    player.setInstance(e.instance, playerPos)
+                    TaskSchedule.stop()
                 }
             }
             player.eventNode().addListener(listener)
