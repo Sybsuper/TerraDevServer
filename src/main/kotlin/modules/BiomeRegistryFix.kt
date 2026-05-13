@@ -6,10 +6,12 @@ import com.sybsuper.terradevserver.events.PrePlayerSendNewInstanceForPackEvent
 import com.sybsuper.terradevserver.logger
 import com.sybsuper.terradevserver.platform
 import net.minestom.server.MinecraftServer
+import net.minestom.server.entity.Player
 import net.minestom.server.event.EventListener
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent
 import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.player.PlayerPacketOutEvent
+import net.minestom.server.instance.Instance
 import net.minestom.server.network.ConnectionState
 import net.minestom.server.network.packet.server.configuration.FinishConfigurationPacket
 import net.minestom.server.network.packet.server.configuration.RegistryDataPacket
@@ -38,29 +40,7 @@ object BiomeRegistryFix : IModule {
             }
             if (!biomesThePlayerKnows.addAll(biomes)) return@addListener
             logger.info("Detected new biome")
-            waitPlayers.add(player.uuid)
-            player.sendMessage("Reentering configuration phase to apply new biomes...")
-
-            // make sure the new biomes are added to Minestom's BiomeRegistry
-            platform.initializeRegistry()
-
-            logger.info("Restarting configuration phase")
-            player.startConfigurationPhase()
-            val playerPos = player.position
-            var sending = false
-            var listener: EventListener<PlayerPacketOutEvent>? = null
-            listener = EventListener.of(PlayerPacketOutEvent::class.java) { ev ->
-                if (ev.packet !is FinishConfigurationPacket || sending) return@of
-                sending = true
-                player.scheduler().scheduleEndOfTick {
-                    logger.info("Sending player to new instance")
-                    waitPlayers.remove(e.player.uuid)
-                    player.eventNode().removeListener(listener)
-                    player.setInstance(e.instance, playerPos)
-                    TaskSchedule.stop()
-                }
-            }
-            player.eventNode().addListener(listener)
+            reconfigureBiomesForPlayer(player, e.instance)
         }
         MinecraftServer.getGlobalEventHandler().addListener(PlayerPacketOutEvent::class.java) { e ->
             val packet = e.packet
@@ -81,5 +61,43 @@ object BiomeRegistryFix : IModule {
                 e.player.respawnPoint = e.player.position
             }
         }
+    }
+
+
+    fun reconfigureBiomesForPlayer(
+        player: Player,
+        instanceToBeSentAfter: Instance,
+    ) {
+        waitPlayers.add(player.uuid)
+        player.sendMessage("Reentering configuration phase to apply new biomes...")
+
+        // make sure the new biomes are added to Minestom's BiomeRegistry
+        platform.initializeRegistry()
+
+        logger.info("Restarting configuration phase")
+        player.startConfigurationPhase()
+        sendToInstanceAfterConfigurationPhaseFinish(player, instanceToBeSentAfter)
+    }
+
+    @Suppress("UnstableApiUsage")
+    private fun sendToInstanceAfterConfigurationPhaseFinish(
+        player: Player,
+        instanceToBeSentAfter: Instance
+    ) {
+        val playerPos = player.position
+        var sending = false
+        var listener: EventListener<PlayerPacketOutEvent>? = null
+        listener = EventListener.of(PlayerPacketOutEvent::class.java) { ev ->
+            if (ev.packet !is FinishConfigurationPacket || sending) return@of
+            sending = true
+            player.scheduler().scheduleEndOfTick {
+                logger.info("Sending player to new instance")
+                waitPlayers.remove(player.uuid)
+                player.eventNode().removeListener(listener)
+                player.setInstance(instanceToBeSentAfter, playerPos)
+                TaskSchedule.stop()
+            }
+        }
+        player.eventNode().addListener(listener)
     }
 }

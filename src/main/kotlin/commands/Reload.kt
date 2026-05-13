@@ -8,7 +8,7 @@ import revxrsal.commands.annotation.Optional
 import revxrsal.commands.minestom.actor.MinestomCommandActor
 
 class Reload : ICommand {
-    @Command("reload")
+    @Command("reload", "rl")
     @Description("Reload the pack for a player (default is yourself)")
     fun reload(actor: MinestomCommandActor, @Optional target: Player = actor.requirePlayer()) {
         updateDevPackForPlayer(target)
