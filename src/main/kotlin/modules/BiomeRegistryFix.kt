@@ -10,6 +10,7 @@ import net.minestom.server.event.EventListener
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent
 import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.player.PlayerPacketOutEvent
+import net.minestom.server.network.ConnectionState
 import net.minestom.server.network.packet.server.configuration.FinishConfigurationPacket
 import net.minestom.server.network.packet.server.configuration.RegistryDataPacket
 import net.minestom.server.timer.TaskSchedule
@@ -27,6 +28,7 @@ object BiomeRegistryFix : IModule {
         }
         MinecraftServer.getGlobalEventHandler().addListener(PackPostLoadEvent::class.java) { e ->
             val player = e.player ?: return@addListener
+            if (!player.isOnline || player.playerConnection.clientState != ConnectionState.PLAY) return@addListener
             logger.info("Detected pack change")
             val biomes = e.pack.biomeProvider.biomes.map { it.id }
             val biomesThePlayerKnows = playerKnownBiomes[player.uuid] ?: run {
