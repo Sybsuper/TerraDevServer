@@ -8,7 +8,8 @@ A "lite" server for Terra Pack development.
 
 - Hot-reloading of Terra Packs: Swap your packs without restarting the server, see changes in a couple seconds.
 - Automatic file change detection: Automatically detects changes in pack files and reloads them.
-- Player position syncing: Allows you to join with multiple minecraft clients and see the same thing in different versions of the pack (before/after view) automatically teleports players to the same position so the views will be synced.
+- Player position syncing: Allows you to join with multiple Minecraft clients and see the same thing in different versions of the pack (before/after view) automatically teleports players to the same position so the views will be synced.
+- New biome introduction support. Where other Terra development setups (such as testing on a Bukkit server) require a server restart or the creation of a new world (Fabric). This server can detect when a new biome is introduced, and allows for biome additions without disconnecting any clients.
 
 ### Demo
 
