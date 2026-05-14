@@ -27,5 +27,49 @@ A short demo video is available on YouTube: https://youtu.be/UHtOWrxFmwo
 
 ### Commands
 
-Currently, the only available command is to type `reload` in chat. This will manually reload the pack.
-More commands (actual commands) will be added in the future. 
+Note: Currently, tab completion is not working as intended. This is a known issue and will be fixed in a future release.
+
+Arguments between `<>` are required, arguments between `[]` are optional with a default value. E.g. `/tp <x> <y> <z>` or `/tp [player=me] <x> <y> <z>` would mean that the player is the one executing the command by default and coordinates are required.
+
+- `/reload [target=me]`: manually reloads the pack in the dev folder.
+- `/reloadbiomes`: reloads the biome registry for the server.
+- `/locate biome <BIOME_ID> [search_radius=100] [step=16]`: finds the biome with the given name in the current world. Results are shown in the chat, and the coordinates will execute the `/tp` command when clicked on.
+- `/tp <x> <y> <z>`: teleports the player to the given coordinates.
+
+### Configuration
+
+The server can be configured using the `config.yml` file which will be created automatically if it does not exist.
+The default configuration is as follows:
+
+```yaml
+# The address to bind to
+bindAddress: "0.0.0.0"
+# The port to bind to
+port: 25565
+# The folder to look for dev packs in
+devPackFolder: "dev"
+# Whether to cycle through players when reload
+# this allows for a side-by-side (before and after) view of changes.
+cycleThroughPlayers: true
+# Whether to sync player positions, when enabled
+# all players will be teleported to the same position as the player that first joined the server
+syncPlayerPositions: true
+# Whether to watch the dev pack directory for changes
+# this will automatically reload the dev pack when a file change is detected
+watchDevPackDirectory: true
+# Set an motd (server list name)
+motd: "Terra Dev Server\nMade by: Sybsuper"
+# Set a world seed
+worldSeed: 0
+# Select which commands to enable
+enabledCommands:
+- "reload"
+- "locate"
+- "teleport"
+- "reregisterbiomes"
+# When enabled, players will be automatically reconnected
+# when a new biome is introduced after a pack reload.
+# When disabled, clients will disconnect when a new biome is introduced.
+# This is because the biome registry is not updated until the client reconnects.
+fixBiomeDisconnects: true
+```
