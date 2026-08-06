@@ -15,6 +15,7 @@ object CommandManager {
         Locate(),
         Teleport(),
         ReregisterBiomes(),
+        Marks(),
     )
 
     fun registerCommands() {

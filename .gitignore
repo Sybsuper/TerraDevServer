@@ -43,4 +43,5 @@ bin/
 
 ### Project Specific ###
 config.yml
+marks.yml
 dev/
