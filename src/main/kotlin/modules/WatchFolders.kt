@@ -5,14 +5,28 @@ import com.sybsuper.terradevserver.logger
 import com.sybsuper.terradevserver.updateDevPackForPlayer
 import io.methvin.watcher.DirectoryChangeEvent
 import io.methvin.watcher.DirectoryWatcher
+import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
+import kotlin.io.path.name
 import kotlin.io.path.relativeTo
 
 object WatchFolders : IModule {
     override val isEnabled: Boolean
         get() = config.watchDevPackDirectory
+
+    private val scheduler = Executors.newSingleThreadScheduledExecutor { r ->
+        Thread(r, "watch-debounce").also { it.isDaemon = true }
+    }
+    private var pendingReload: ScheduledFuture<*>? = null
+
+    private val excludeMatchers get() = config.watchExcludePatterns.map { pattern ->
+        FileSystems.getDefault().getPathMatcher("glob:$pattern")
+    }
 
     override fun enable() {
         watchFolder(Path(config.devPackFolder)) {
@@ -24,7 +38,10 @@ object WatchFolders : IModule {
             val player = PlayerCycleTarget.getPlayerTarget()
             logger.info(msg)
             player.sendMessage(msg)
-            updateDevPackForPlayer(player, true)
+            pendingReload?.cancel(false)
+            pendingReload = scheduler.schedule({
+                updateDevPackForPlayer(player, true)
+            }, config.watchDebounceMs, TimeUnit.MILLISECONDS)
         }
     }
 
@@ -33,8 +50,8 @@ object WatchFolders : IModule {
             .path(path)
             .logger(logger)
             .listener { e ->
-                // for some reason I get updates for e.g. 'meta.yml' and then also for 'meta.yml~', so let's ignore the latter
-                if (e.path().toString().endsWith("~")) return@listener
+                val name = e.path().name
+                if (excludeMatchers.any { it.matches(Path(name)) }) return@listener
                 callback(e)
             }.build().watchAsync()
     }

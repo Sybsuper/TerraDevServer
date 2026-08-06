@@ -44,6 +44,16 @@ data class Config(
         "This is because the biome registry is not updated until the client reconnects."
     )
     val fixBiomeDisconnects: Boolean = true,
+    @YamlComment(
+        "Debounce window in milliseconds for file-watch reloads.",
+        "Burst saves within this window trigger only one reload."
+    )
+    val watchDebounceMs: Long = 500L,
+    @YamlComment(
+        "File name patterns to ignore when watching the dev pack directory.",
+        "Supports glob wildcards: * matches within a segment."
+    )
+    val watchExcludePatterns: List<String> = listOf("*.swp", ".DS_Store", "*.md", "*~"),
 ) {
 }
 

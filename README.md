@@ -15,6 +15,8 @@ A "lite" server for Terra Pack development.
 
 A short demo video is available on YouTube: https://youtu.be/UHtOWrxFmwo
 
+A long demo video of someone going through the whole Terra "make a pack from scratch" tutorial using this dev server is available on YouTube: https://youtu.be/Obcb9-BPfhE
+
 ### Usage
 
 1. Download the latest release jar from the [releases page](https://github.com/Sybsuper/TerraDevServer/releases);
@@ -72,4 +74,14 @@ enabledCommands:
 # When disabled, clients will disconnect when a new biome is introduced.
 # This is because the biome registry is not updated until the client reconnects.
 fixBiomeDisconnects: true
+# Debounce window in milliseconds for file-watch reloads.
+# Burst saves within this window trigger only one reload.
+watchDebounceMs: 500
+# File name patterns to ignore when watching the dev pack directory.
+# Supports glob wildcards: * matches within a segment.
+watchExcludePatterns:
+- "*.swp"
+- ".DS_Store"
+- "*.md"
+- "*~"
 ```
